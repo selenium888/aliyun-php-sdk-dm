@@ -17,9 +17,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-namespace Dm\Request\V20151123;
+namespace Selenium888\Aliyun\Dm\Dm\Request\V20151123;
 
-class SingleSendSmsRequest extends \RpcAcsRequest
+use Superman2014\Aliyun\Core\RpcAcsRequest;
+
+class SingleSendSmsRequest extends RpcAcsRequest
 {
 	function  __construct()
 	{

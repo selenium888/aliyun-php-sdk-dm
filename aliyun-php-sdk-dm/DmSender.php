@@ -2,7 +2,9 @@
 
 namespace Selenium888\Aliyun\Dm;
 
-use Selenium888\Aliyun\Dm\Dm\Request\V20151123 as Push;
+use Selenium888\Aliyun\Dm\Dm\Request\V20151123 as Dm;
+use Superman2014\Aliyun\Core\Exception\ClientException;
+use Superman2014\Aliyun\Core\Exception\ServerException;
 use Superman2014\Aliyun\Core\Profile\DefaultProfile;
 use Superman2014\Aliyun\Core\DefaultAcsClient;
 use Superman2014\Aliyun\Core\Regions\ProductDomain;
@@ -64,10 +66,10 @@ defined('HTTP_PROXY_IP') or define('HTTP_PROXY_IP', '127.0.0.1');
 defined('HTTP_PROXY_PORT') or define('HTTP_PROXY_PORT', '8888');
 
 
-class PushSender
+class DmSender
 {
     /**
-     * 阿里云推送消息.
+     * 阿里云邮件推送.
      * @param $accessKeyId
      * @param $accessKeySecret
      * @param $appKey
@@ -77,21 +79,32 @@ class PushSender
      * @param array $content
      * @return string
      */
-    public function push($accessKeyId, $accessKeySecret, $appKey, $target, $targetValue, $title, array $content)
+    public function push($accessKeyId, $accessKeySecret, $account_name, $from_alias, $email, $subject, $body, $tag_name = 'system')
     {
-        //将要发送的内容转为json格式
-        $content = json_encode($content);
         $iClientProfile = DefaultProfile::getProfile("cn-hangzhou", $accessKeyId, $accessKeySecret);
         $client = new DefaultAcsClient($iClientProfile);
-        $request = new Push\PushMessageToAndroidRequest();
+        $request = new Dm\SingleSendMailRequest();
 
-        $request->setAppKey($appKey);
-        $request->setTarget($target); //推送目标: DEVICE:按设备推送 ALIAS:按别名推送 ACCOUNT:按帐号推送  TAG:按标签推送; ALL:广播推送
-        $request->setTargetValue($targetValue); //根据Target来设定，如Target=DEVICE, 则对应的值为 设备id1,设备id2. 多个值使用逗号分隔.(帐号与设备有一次最多100个的限制)
-        $request->setTitle($title);
-        $request->setBody($content);
+        $request->setAccountName($account_name);
+        $request->setFromAlias($from_alias);
+        $request->setAddressType(1);
+        $request->setTagName($tag_name);
+        $request->setReplyToAddress("false");
+        $request->setToAddress($email);
+        $request->setSubject($subject);
+        $request->setHtmlBody($body);
+        try {
+            $response = $client->getAcsResponse($request);
+            return json_encode($response);
+        }
+        catch (ClientException $e) {
+            print_r($e->getErrorCode());
+            print_r($e->getErrorMessage());
+        }
+        catch (ServerException $e) {
+            print_r($e->getErrorCode());
+            print_r($e->getErrorMessage());
+        }
 
-        $response = $client->getAcsResponse($request);
-        return json_encode($response);
     }
 }
