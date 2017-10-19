@@ -101,7 +101,10 @@ class DmSender
         catch (ClientException $e) {
             print_r($e->getErrorCode());
             print_r($e->getErrorMessage());
+<<<<<<< HEAD
             exit;
+=======
+>>>>>>> 54b36a8aec1c96502b6dab72d16211ff9679e0e6
         }
         catch (ServerException $e) {
             print_r($e->getErrorCode());
